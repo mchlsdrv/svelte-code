@@ -141,14 +141,14 @@
 </script>
 
 <main>
-	<!-- {#if !consentChecked}
+	{#if !consentChecked}
 		<Consent on:agreed={() => (consentChecked = true)} />
 	{:else if !notRobot}
 		<Captcha on:notRobot={() => (notRobot = true)} />
-	{:else} -->
-		<!-- <Guidelines /> -->
+	{:else}
+		<Guidelines />
 		<Example />
-	<!-- {/if} -->
+	{/if}
 </main>
 
 <style>

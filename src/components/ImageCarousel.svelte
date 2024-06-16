@@ -10,7 +10,6 @@
     let currentItem = 0;
     let currentSlideItem = 0;
     let videoPaused = false;
-    console.log({videoPaused})
 
     const nextImage = () => {
         currentSlideItem = (currentSlideItem + 1) % images.length;
@@ -36,26 +35,24 @@
         }
     }
 
-    function triggerClick(element: any){
-        var clickEvent = new Event('click');
-        element.dispatchEvent(clickEvent);
-    }
+    setInterval(() => {
+        if(!videoPaused){
+            nextImage();
+        }
+    }, 50);
 
     async function playImages(){
         const nextBtn = document.getElementById("next")
         for(let i = 0; i < 50; i++){
             videoPaused = true;
-            nextBtn?.click();
+            if (nextBtn != null){
+                nextBtn.click();
+            }
         }
 
     }
-    // let counter = 0;
-    // while (counter < 5) {
-    //     console.log(counter);
-    //     counter ++;
-    // }
-
 </script>
+
 <main>
     {#each [images[currentSlideItem]] as image, index}
         <img transition:slide="{{delay:200}}" src={image} alt='Blank' width="1080"/>
@@ -66,27 +63,4 @@
         <button id="prev" on:click={() => prevImage()}>&#9194</button>
         <button id="next" on:click={() => nextImage()}>&#9193</button>
     </div>
-        
-    <script>
-        prevBtn = document.getElementById("prev")
-        playBtn = document.getElementById("play")
-        pauseBtn = document.getElementById("pause")
-        nextBtn = document.getElementById("next")
-        async function playImages(){
-            const nextBtn = document.getElementById("next")
-            for(let i = 0; i < 50; i++){
-                videoPaused = true;
-                nextBtn?.click();
-        }
-        let counter = 0;
-        while (counter < 5) {
-            console.log(counter);
-            counter ++;
-        }
-        for(let i = 0; i < 50; i++){
-            videoPaused = true;
-            nextBtn.click();
-        }
-
-    </script>
 </main>
