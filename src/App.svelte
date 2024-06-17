@@ -1,143 +1,38 @@
 <script lang="ts">
-	import { onMount } from "svelte";
-	import { writable } from "svelte/store"; 
 	import Captcha from "./components/Captcha.svelte";
-	import Guidelines from "./components/Guidelines.svelte";
+	import ExampleGuidelines from "./components/ExampleGuidelines.svelte"
+	import TrainingGuidelines from "./components/TrainingGuidelines.svelte"
+	import TaskGuidelines from "./components/TaskGuidelines.svelte"
 	import Consent from "./components/Consent.svelte";
 	import Example from "./components/Example.svelte";
+	import Training from "./components/Training.svelte";
+	import Task from "./components/Task.svelte";
 
-	const _configurationToRun: ConfigurationType[] = [];
-
-	const store = writable<ConfigurationType[]>(_configurationToRun);
-	const configurationToRun = {
-		...store,
-	};
-	let consentChecked = false;
-	console.log(consentChecked)
-	let formToSend: HTMLFormElement;
 	let notRobot = false;
-
-	let showForm = false;
-	let errMsg = "";
-	let alrtShown = false;
-
-	let attempts = 0;
-
-	const maxAttempts = 2;
-
-	let showSbmtBtn = true;
-
-	let sbmtBtn: HTMLInputElement | null;
-
-	$: {console.log($configurationToRun)};
-
-	const searchAndCreateConfiguration = () => {
-		const configs: ConfigurationType[] = [];
-		const items = document.querySelectorAll(".variable-feed");
-		if (items.length){
-			items.forEach((v) => {
-				const variableName = v.innerHTML.split(":;:")[0].trim();
-				const variableValue = v.innerHTML.split(":;:")[1].trim();
-				configs.push(
-					{
-						id: +variableName || 
-						0, frameCount: +variableValue || 
-						0, actions: [], 
-						agent: "hand", 
-						playerCurrentFrame: 0, 
-						showIndexOfAction: 0
-					}
-				);
-			})
-		}
-	}
-
-	const createInput = (name: string, value: any) => {
-		const input = document.createElement("input");
-		input.type = "hidden";
-		input.name;
-		return input;
-	}
-
-	const submitForm = (event: MouseEvent) => {
-		console.log("Submitting form ...");
-		console.log("Answer:", notRobot);
-
-		if (notRobot){
-			const allTasksCompleted = $configurationToRun.every(
-				(configuration) => 
-					configuration.actions && 
-					configuration.actions.every((action, index) => {
-						if (index <= configuration.showIndexOfAction){
-							return action.type !== undefined && // <= if the action was selected
-								action.agent != undefined && // <= if the agent was selected
-								action.frame !== 0 && // <= if the frame is not the first frame
-								action.x != 0 && // <= if x is in boundries
-								action.y != 0; // <= if y is in boundries
-						} else {
-							return true;
-						}
-					})
-			);
-			console.log("All Tasks Completed:", allTasksCompleted);
-
-			if (!allTasksCompleted){
-				event.preventDefault();
-				event.stopPropagation();
-				alert("Please fill all incomplete input fields. Please complete all tasks before submission.");
-				return;
-			} else {
-				console.log("Submitting form ...");
-				formToSend.submit();
-			}
-		} else {
-			event.preventDefault();
-			event.stopPropagation();
-			alert("Your answer is wrong!");
-			return;
-		}
-	};
-
-	const submitAnswer = (event: any) => {
-		event.preventDefault();
-		event.stopPropagation();
-		if (notRobot) {
-			showForm = true;
-			errMsg = "";
-			showSbmtBtn = true;
-			alrtShown = false;
-			if (sbmtBtn) {
-				sbmtBtn.style.display = "block";
-			}
-			attempts = 0;
-		} else {
-			attempts ++;
-
-			if (attempts >= maxAttempts && !alrtShown){
-				errMsg = "You are not allowed to continue."
-
-				showSbmtBtn = false;
-
-				alert(errMsg);
-
-				alrtShown = true;
-
-				return;
-			}
-		}
-	}
-	onMount(() => {
-		searchAndCreateConfiguration();
-
-		sbmtBtn = document.querySelector("#submitButton");
-		if (sbmtBtn) {
-			sbmtBtn.style.display = "none";
-			sbmtBtn.addEventListener("click", submitForm);
-
-		}
-	});
-	console.log({notRobot})
+	let consentChecked = false;
+	let showExample = true;
+	let showTraining = true;
+	let showTasks = false;
+	const numberOfTasks = 10;
+	let showNextTask = true;
     const imageDir = `https://raw.githubusercontent.com/lieldvd/mturk/main/15545`;
+	let tasks = Array(numberOfTasks).fill({show: false});
+	tasks[0].show = true; 
+
+	function nextTask(currentIndex: number){
+		tasks[currentIndex].show = false;
+		if (currentIndex < numberOfTasks - 1){
+			tasks[currentIndex+1].show = true;
+		}
+	}
+	function startTraining(){
+		showTraining = true
+		showExample = false
+	}
+	function startTasks(){
+		showTasks = true;
+		showTraining = false;
+	}
 </script>
 
 <main>
@@ -146,8 +41,22 @@
 	{:else if !notRobot}
 		<Captcha on:notRobot={() => (notRobot = true)} />
 	{:else}
-		<Guidelines />
-		<Example />
+		 {#if showExample}
+			<ExampleGuidelines />
+			<Example on:startTraining={() => startTraining()}/>
+		{:else if showTraining}
+			<TrainingGuidelines />
+			<Training on:startTasks={() => startTasks()}/>
+		{:else if showTasks}
+			<TaskGuidelines />
+			{#each tasks as task, taskIdx}
+				{task.show}
+				{#if task.show}
+				 	<h2>Task #{taskIdx}</h2>
+					<Task on:taskComplete={() => nextTask(taskIdx)}/>
+				{/if}
+			{/each}
+		{/if}
 	{/if}
 </main>
 

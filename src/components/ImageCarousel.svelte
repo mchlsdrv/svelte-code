@@ -55,6 +55,7 @@
 
 <main>
     {#each [images[currentSlideItem]] as image, index}
+        <div>index</div>
         <img transition:slide="{{delay:200}}" src={image} alt='Blank' width="1080"/>
     {/each}
     <div class="carousel-buttons">
