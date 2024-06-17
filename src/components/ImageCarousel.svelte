@@ -41,16 +41,6 @@
         }
     }, 50);
 
-    async function playImages(){
-        const nextBtn = document.getElementById("next")
-        for(let i = 0; i < 50; i++){
-            videoPaused = true;
-            if (nextBtn != null){
-                nextBtn.click();
-            }
-        }
-
-    }
 </script>
 
 <main>

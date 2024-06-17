@@ -15,15 +15,16 @@
 	let showTasks = false;
 	const numberOfTasks = 10;
 	let showNextTask = true;
+	let currentIndex = 0;
     const imageDir = `https://raw.githubusercontent.com/lieldvd/mturk/main/15545`;
-	let tasks = Array(numberOfTasks).fill({show: false});
-	tasks[0].show = true; 
+	const tasks = Array.from({length: numberOfTasks}, (_, index) => `Task ${index}`);
 
-	function nextTask(currentIndex: number){
-		tasks[currentIndex].show = false;
-		if (currentIndex < numberOfTasks - 1){
-			tasks[currentIndex+1].show = true;
+	function nextTask(){
+		if (currentIndex === tasks.length - 1){
+			console.log('No more tasks!');
+			return;
 		}
+		currentIndex += 1;
 	}
 	function startTraining(){
 		showTraining = true
@@ -49,13 +50,8 @@
 			<Training on:startTasks={() => startTasks()}/>
 		{:else if showTasks}
 			<TaskGuidelines />
-			{#each tasks as task, taskIdx}
-				{task.show}
-				{#if task.show}
-				 	<h2>Task #{taskIdx}</h2>
-					<Task on:taskComplete={() => nextTask(taskIdx)}/>
-				{/if}
-			{/each}
+			<h1>{tasks[currentIndex]}!</h1>
+			<button on:click={()=>nextTask()}>Next Task</button>
 		{/if}
 	{/if}
 </main>

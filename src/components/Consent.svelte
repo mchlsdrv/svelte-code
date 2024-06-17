@@ -2,7 +2,6 @@
     import {createEventDispatcher} from 'svelte'
     const dispatchEvent = createEventDispatcher();
     let agreed = false;
-    console.log({agreed})
 </script>
 
 {#if !agreed}
